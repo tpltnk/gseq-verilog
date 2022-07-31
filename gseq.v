@@ -14,16 +14,20 @@ input real k;
 output reg [63:0]s[0:n-1];
 integer i;
 
+reg [63:0] max_s = 64'b11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111;
+reg [63:0] ovf_s = 64'b00000000_00000000_00000000_00000000_00000000_01101111_01110110_01100110;
+
 initial begin
     for (i=0; i<n; i++) begin
-        if (a1 * k ** i >= 64'B1111111111111111111111111111111111111111111111111111111111111111) begin
-            s[i] = 64'B0000000000000000000000000000000000000000_01101111_01110110_01100110; // "<61 nulls>ovf"
-            if (show) begin
-                $display("%d: %s", i+1, s[i]);
-            end
+        if (a1 * k ** i >= max_s) begin
+            s[i] = ovf_s; // "<61 nulls>ovf"
         end else begin
             s[i] = a1 * k ** i;
-            if (show) begin
+        end
+        if (show) begin
+            if (s[i] == ovf_s) begin
+                $display("%d: %s", i+1, s[i]);
+            end else begin
                 $display("%d: %.2f", i+1, s[i]);
             end
         end
